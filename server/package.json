@@ -4,13 +4,18 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon app.js"
+    "watch": "babel -w -d dist/ src",
+    "start": "nodemon dist/app.js"
   },
   "dependencies": {
     "express": "^4.17.0",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-transform-spread": "^7.2.2",
+    "@babel/preset-env": "^7.4.4",
     "nodemon": "^1.19.0"
   }
 }
