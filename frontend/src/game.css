@@ -1,0 +1,77 @@
+:root {
+  --light-border-color: #CCCCCC;
+  --light-background-color: #555555;
+  --secret-text-color: #CC0000;
+  --gray-text-color: #AAAAAA;
+  --white-text-color: white;
+}
+
+.action--button {
+  background-color: var(--light-background-color);
+  border: 1px solid var(--light-border-color);
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.game--container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.game {
+  flex: 1;
+  background-color: black;
+  color: var(--white-text-color);
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.user--info {
+  padding: 16px;
+}
+
+.state--info {
+  padding: 16px;
+}
+
+.players--info {
+  padding: 16px;
+}
+
+.player {
+  display: flex;
+  font-size: 16px;
+}
+
+.player--info {
+  color: var(--gray-text-color);
+}
+
+.player--name {
+  font-size: 20px;
+  color: var(--white-text-color);
+}
+
+.header {
+  border-bottom: 1px solid var(--light-border-color);
+  display: flex;
+  justify-content: center;
+
+  background-color: #111111;
+  color: var(--white-text-color);
+  font-weight: 600;
+  font-size: 48px;
+  padding: 48px;
+}
+
+.header--secret {
+  color: var(--secret-text-color);
+  opacity: 0.3;
+  transition: 1s all;
+}
+
+.header--secret:hover {
+  opacity: 1;
+}

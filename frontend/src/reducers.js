@@ -23,6 +23,7 @@ export const generateInitialState = () => {
       },
     ],
     status: 'pending',
+    uid: 0,
   };
 };
 

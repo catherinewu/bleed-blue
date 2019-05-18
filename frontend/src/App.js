@@ -27,7 +27,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <Game id='adsfae' gameState={this.state.gameState} doAction={this.doAction}></Game>
+      <Game id={0} gameState={this.state.gameState} doAction={this.doAction}></Game>
     );
   }
 }
