@@ -1,33 +1,35 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Game from './game';
+import { generateInitialState, reduce } from './reducers'
 
-const gameState = {
-  day: 3,
-  players: [1, 2],
-  cardsPlayed: ['pass', 'pass'],
-  player: 1,
-  role: 'Hitler',
-}
+// const gameState = {
+//   day: 3,
+//   players: [1, 2],
+//   cardsPlayed: ['pass', 'pass'],
+//   player: 1,
+//   role: 'Hitler',
+// }
 
 class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      count: 0
+      gameState: generateInitialState(),
     };
   }
+
+  doAction = ({type, data}) => {
+    this.setState({
+      gameState: reduce(this.state.gameState, type, data),
+    })
+  }
+
   render() {
     return (
-      <Game id='adsfae' gameState={gameState} doAction={doAction}></Game>
+      <Game id='adsfae' gameState={this.state.gameState} doAction={this.doAction}></Game>
     );
   }
-}
-
-function doAction({type, data}) {
-  console.log('type', type);
-  console.log('data', data);
 }
 
 export default App;
