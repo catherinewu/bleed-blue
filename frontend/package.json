@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "shared": "file:../shared",
     "lodash": "^4.17.11",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.0.1",
+    "shared": "file:../shared",
+    "socket.io-client": "^2.2.0"
   },
   "scripts": {
     "start": "PORT=5050 react-scripts start",

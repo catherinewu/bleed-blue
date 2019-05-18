@@ -2,10 +2,7 @@ import React from 'react';
 import './App.css';
 import Game from './game';
 import { generateInitialState, reduce } from 'shared/reducers'
-
-var app = require('express')();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+import io from 'socket.io-client';
 
 // const gameState = {
 //   day: 3,
@@ -19,7 +16,7 @@ class App extends React.Component {
   constructor(props){
     super(props);
 
-    const socket = io.connect('http://localhost:6060');
+    const socket = io('http://localhost:6060')
     socket.on('news', function (data) {
       console.log(data);
       socket.emit('my other event', { my: 'data' });

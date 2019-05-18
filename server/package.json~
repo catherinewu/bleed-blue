@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "express": "^4.17.0",
+    "socket.io": "^2.2.0"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "app.js",
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "babel-cli": "^6.26.0",
+    "nodemon": "^1.19.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
