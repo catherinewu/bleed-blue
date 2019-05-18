@@ -28,7 +28,7 @@ export const generateInitialState = () => {
 };
 
 export const reduce = (gameState, type, data) => {
-  console.log('in reduce with game state', JSON.stringify(gameState, null, 4));
+  console.log('in reduce with game state', gameState);
   const { target, source, outcome } = data;
   console.log('target is', target);
   const handler = reducers[type];
@@ -37,26 +37,19 @@ export const reduce = (gameState, type, data) => {
 
 const reducers = {
   play_vote(state, { target }) {
-    console.log('state is', JSON.stringify(state, null, 4));
-    _.map(state.players, (p) => {
-      console.log('p', JSON.stringify(p, null, 4));
+    console.log('state is', state);
+    _.forEach(state.players, (p) => {
       if (p.role === 'Voter') {
         p.hasChosen = true;
       }
       else if (p.name === target) {
         p.chosen = true;
-        if (p.name !== hitler) {
-          state.outcome = 'liberal'; // did not pick hitler!
-        } else {
-          state.outcome = 'fascist'
-        }
       }
       else {
         p.chosen = false;
       }
     });
     console.log(`state.players`, JSON.stringify(state.players, null, 4));
-    // state.status = 'finalizing';
     return {
       ...state,
       status: 'finalizing',

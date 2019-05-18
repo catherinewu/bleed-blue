@@ -42,9 +42,9 @@ function Game({gameState: { uid, players }}) {
           HITLER
         </span>
       </div>
-      
+
       <div className="game">
-        
+
         <div className="user--info">
           You are a <strong>{role}</strong>.
         </div>
