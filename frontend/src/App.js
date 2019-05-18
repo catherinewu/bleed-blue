@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import Game from './game';
-import { generateInitialState, reduce } from './reducers'
+import { generateInitialState, reduce } from 'shared/reducers'
 
 // const gameState = {
 //   day: 3,
