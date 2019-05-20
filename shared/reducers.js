@@ -3,6 +3,7 @@ const _ = require('lodash');
 const hitler = 'B';
 
 const generateInitialState = () => {
+  console.log('in shared/reducers -> generateInitialState');
   return {
     players: [
       {
@@ -25,6 +26,7 @@ const generateInitialState = () => {
       },
     ],
     status: 'pending',
+    uid: 0,
   };
 };
 
@@ -67,19 +69,21 @@ const reduce = (gameState, type, data) => {
 const reducers = {
   play_vote(state, { target }) {
     console.log('state is', state);
-    const players = _.forEach(state.players, (p) => {
+    const players = _.map(state.players, (p) => {
       return {
         ...p,
         hasChosen: p.role === 'Voter',
         chosen: p.name === target,
       }
     });
-    console.log(`state.players`, JSON.stringify(state.players, null, 4));
-    return {
+    console.log('original state', state.players);
+    const toReturn = {
       ...state,
       players,
       status: 'finalizing',
     };
+    console.log(`updated state`, JSON.stringify(players, null, 4));
+    return toReturn;
   },
 
   restart_game(state, { target }) {
@@ -101,4 +105,3 @@ const reducers = {
 exports.reduce = reduce;
 exports.validate = validate;
 exports.generateInitialState = generateInitialState;
-// export { generateInitialState, validate, reduce };

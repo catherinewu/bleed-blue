@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './game';
-import { generateInitialState, reduce } from 'shared/reducers'
+import { generateInitialState, reduce } from '../src/shared/reducers'
 import io from 'socket.io-client';
 // const gameState = {
 //   day: 3,
