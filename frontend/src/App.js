@@ -66,7 +66,8 @@ class App extends Component {
   }
 
   doAction = ({type, data}) => {
-    this.socket.emit('doAction', {type, data, sessionKey: window.localStorage.getItem('sessionKey')});
+    this.socket.emit('doAction', {gameState: this.state.gameState, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
+    console.log('in doAction, gameState is: ', this.state.gameState);
     this.setState({
       gameState: reduce(this.state.gameState, type, data),
     })

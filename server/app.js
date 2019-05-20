@@ -63,7 +63,7 @@ io.on('connection', function (socket) {
   socket.on('doAction', function (data) {
     console.log('socket heard doAction with data', data);
     const session = sessions[data.sessionKey];
-    const gameState = reduce(gameState, data.type, data.data);
+    const gameState = reduce(data.gameState, data.type, data.data);
     gameHistory.push(gameState);
     console.log('new game state', gameState);
     console.log('session', session);
