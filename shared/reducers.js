@@ -38,20 +38,17 @@ export const reduce = (gameState, type, data) => {
 const reducers = {
   play_vote(state, { target }) {
     console.log('state is', state);
-    _.forEach(state.players, (p) => {
-      if (p.role === 'Voter') {
-        p.hasChosen = true;
-      }
-      else if (p.name === target) {
-        p.chosen = true;
-      }
-      else {
-        p.chosen = false;
+    const players = _.forEach(state.players, (p) => {
+      return {
+        ...p,
+        hasChosen: p.role === 'Voter',
+        chosen: p.name === target,
       }
     });
     console.log(`state.players`, JSON.stringify(state.players, null, 4));
     return {
       ...state,
+      players,
       status: 'finalizing',
     };
   },
@@ -63,6 +60,7 @@ const reducers = {
 
   // outcome: one of 'fascist victory' or 'liberal victory'
   reveal_outcome(state, { outcome }) {
+    console.log('in reveal_outcome');
     return {
       ...state,
       status: 'completed',

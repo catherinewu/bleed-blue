@@ -3,7 +3,7 @@ import './game.css';
 import _ from 'lodash';
 
 // TODO move to player.js
-function Player({playerState: { role, chosen, name }, onNominate}) {
+function Player({playerState: { role, chosen, name }, onNominate, doAction}) {
   return (
     <div className="player">
       <span className="player--info">
@@ -13,22 +13,14 @@ function Player({playerState: { role, chosen, name }, onNominate}) {
       </span>
       <div className="player--actions">
         <div className="action--button">
-          Nominate
+          <button onClick={()=>doAction({type: 'play_vote', data: { target: name } })}>click to nominate {name}</button>
         </div>
       </div>
     </div>
   );
 }
 
-/*
-<button onClick={()=>props.doAction({type: 'restart_game', data: { target: null } })}>click me to restart game</button>
-      <button onClick={()=>props.doAction({type: 'play_vote', data: { target: 'B'}})}>click me to vote B</button>
-      <button onClick={()=>props.doAction({type: 'play_vote', data: { target: 'C'}})}>click me to vote C</button>
-      <button onClick={()=>props.doAction({type: 'reveal_outcome', data: { target: null, outcome: 'liberals win' }})}>click me to reveal outcome</button>
-
-*/
-
-function Game({gameState: { uid, players }}) {
+function Game({gameState: { uid, players }, doAction}) {
   console.log(uid, players);
   const player = players[uid];
   const { role } = player;
@@ -39,7 +31,7 @@ function Game({gameState: { uid, players }}) {
         <span>
           <span className="header--secret">SECRET</span>
           {' '}
-          HITLER
+          H
         </span>
       </div>
 
@@ -55,10 +47,13 @@ function Game({gameState: { uid, players }}) {
 
         <div className="players--info">
           {_.map(players, player => (
-            <Player key={player.uid} playerState={player}/>
+            <Player key={player.uid} playerState={player} doAction={doAction}/>
           ))}
         </div>
 
+        <div className="action--button">
+            <button onClick={()=>doAction({type: 'reveal_outcome', data: { target: null, outcome: 'liberals win'} })}> click to reveal outcome </button>
+        </div>
         <div className="action--info">
           <div className="action--pending">
             You need to <strong>nominate a player</strong>
