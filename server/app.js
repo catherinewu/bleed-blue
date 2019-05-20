@@ -11,8 +11,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-const sessions = {};
-const gameHistory = [];
+let sessions = {};
+let gameHistory = [];
 let targetNumberPlayers;
 let currentNumberPlayers = 0;
 
