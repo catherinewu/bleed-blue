@@ -1,4 +1,4 @@
-// import { reduce } from '../shared/reducers';
+import { reduce } from '../shared/reducers';
 
 const app = require('express')();
 const server = require('http').Server(app);

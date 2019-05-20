@@ -1,7 +1,8 @@
-import _ from 'lodash';
+const _ = require('lodash');
 
 const hitler = 'B';
-export const generateInitialState = () => {
+
+const generateInitialState = () => {
   return {
     players: [
       {
@@ -27,7 +28,7 @@ export const generateInitialState = () => {
   };
 };
 
-export const validate = (gameState, type, actorUid, data) => {
+const validate = (gameState, type, actorUid, data) => {
   const { target, source, outcome } = data;
   const handler = validators[type];
   if (!handler) {
@@ -55,7 +56,7 @@ const validators = {
 };
 
 
-export const reduce = (gameState, type, data) => {
+const reduce = (gameState, type, data) => {
   console.log('in reduce with game state', gameState);
   const { target, source, outcome } = data;
   console.log('target is', target);
@@ -96,3 +97,8 @@ const reducers = {
     }
   }
 };
+
+exports.reduce = reduce;
+exports.validate = validate;
+exports.generateInitialState = generateInitialState;
+// export { generateInitialState, validate, reduce };
