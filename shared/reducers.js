@@ -8,24 +8,52 @@ export const generateInitialState = () => {
         name: 'A',
         role: 'Voter',
         hasChosen: false,
-
+        uid: 0,
       },
       {
         name: 'B',
         role: 'Candidate',
         chosen: false,
-
+        uid: 1,
       },
       {
         name: 'C',
         role: 'Candidate',
         chosen: false,
+        uid: 2,
       },
     ],
     status: 'pending',
-    uid: 0,
   };
 };
+
+export const validate = (gameState, type, actorUid, data) => {
+  const { target, source, outcome } = data;
+  const handler = validators[type];
+  if (!handler) {
+    console.error('Unsupported event type', type);
+    return false;
+  }
+  return handler(gameState, actorUid, { target, source, outcome });
+};
+
+const validators = {
+  play_vote(state, actorUid, { target }) {
+    return state.status === 'pending' && _.get(actorUid, 'players', actorUid, 'role') === 'Voter';
+  },
+
+  restart_game(state, actorUid) {
+    // XXX too permissive
+    // TODO add "game leader" or something
+    return true;
+  },
+
+  reveal_outcome(state, actorUid, { outcome }) {
+    // Only the moderator (uid = -1) can reveal the outcome of the game
+    return state.status === 'finalizing' && actorUid === -1;
+  }
+};
+
 
 export const reduce = (gameState, type, data) => {
   console.log('in reduce with game state', gameState);
