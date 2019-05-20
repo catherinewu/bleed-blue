@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './game';
-import { generateInitialState, reduce } from '../src/shared/reducers'
+import { generateInitialState, reduce, validate } from '../src/shared/reducers'
 import io from 'socket.io-client';
 // const gameState = {
 //   day: 3,
@@ -29,7 +29,7 @@ class App extends Component {
     this.Game = new Game({ gameState: this.state.gameState });
 
     // let server know about new game
-    this.socket.emit('newGame', { gameState: this.state.gameState });
+    this.socket.emit('newGame', { gameState: this.state.gameState, targetNumberPlayers: 3 });
 
     this.socket.on('news', (data) => {
       console.log(data);
@@ -65,17 +65,44 @@ class App extends Component {
     });
   }
 
-  doAction = ({type, data}) => {
-    this.socket.emit('doAction', {gameState: this.state.gameState, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
-    console.log('in doAction, gameState is: ', this.state.gameState);
+  history = (type) => {
+    if (type === 'view') {
+      fetch(serverAddress + '/view_history', {
+        method: 'get',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => console.log('view history response: ', response.body));
+    } else if (type === 'clear') {
+      fetch(serverAddress + '/clear_history', {
+        method: 'post',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => console.log('view history response: ', response.body));
+    }
+  }
+
+  doAction = ({actorUid, type, data}) => {
+    console.log('actorUid in doAction is', actorUid);
+    const valid = validate(this.state.gameState, actorUid, type, data);
+    if (!valid) {
+      window.alert('your action is not valid :P');
+      return;
+    }
+    this.socket.emit('doAction', {gameState: this.state.gameState, actorUid, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
     this.setState({
-      gameState: reduce(this.state.gameState, type, data),
+      gameState: reduce(this.state.gameState, actorUid, type, data),
     })
   }
 
   render() {
     return ( this.state.loaded ?
-      <Game id={0} gameState={this.state.gameState} doAction={this.doAction}></Game>
+      <Game id={0} gameState={this.state.gameState} doAction={this.doAction} history={this.history}></Game>
       :
       <div className="join-container">
         <input type="text" value={this.state.name} onChange={this.handleNameInput.bind(this)} className="join-input" placeholder="Enter a name to use ..."/>

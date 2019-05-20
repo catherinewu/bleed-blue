@@ -13,6 +13,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 const sessions = {};
 const gameHistory = [];
+let targetNumberPlayers;
+let currentNumberPlayers = 0;
 
 class Session {
   constructor(name) {
@@ -25,18 +27,40 @@ class Session {
 
 let gameState = 'lalala';
 
-// emit the gameState object to all sockets at a rate of 0.1 times per second.
+// emit the gameState object to all sockets at a rate of 1 times per second.
 setInterval(() => {
   io.sockets.emit('stateUpdate', gameState);
-}, 1000 / 0.1);
+}, 1000 / 1);
 
 // New user joins
 app.post('/create_user', (req, res) => {
+  currentNumberPlayers++;
+  console.log('currentNumberPlayers', currentNumberPlayers);
+  console.log('targetNumberPlayers', targetNumberPlayers);
+  if (targetNumberPlayers && currentNumberPlayers > targetNumberPlayers) {
+    console.log('Sorry, target number of players reached');
+    res.json({ success: false })
+  }
+  console.log('in create_user route');
   const sessionKey = generateId(24);
   console.log('session key is', sessionKey, ' and name is, ', req.body.name);
   sessions[sessionKey] = new Session(req.body.name);
   res.json({success: true, sessionKey});
 });
+
+app.get('/view_history', (req, res) => {
+  console.log('in view_history route');
+  console.log(gameHistory);
+  res.send({ history: gameHistory});
+})
+
+app.post('/clear_history', (req, res) => {
+  sessions = {};
+  gameHistory = [];
+  res.send({ success: true });
+  // emit some socket event
+  // let currentNumberPlayers = 0;
+})
 
 function generateId(len) {
   let result = "";
@@ -49,26 +73,21 @@ function generateId(len) {
 // When a connection was created.
 io.on('connection', function (socket) {
   console.log('a user connected:', socket.id);
-  socket.emit('news', { hello: 'world' });
+
   socket.on('newGame', function (data) {
+    console.log('init newGame')
     gameState = data.gameState;
-    gameHistory.push(gameState);
+    targetNumberPlayers = data.targetNumberPlayers;
+    gameHistory.push({ gameState: data.gameState });
   })
-  socket.on('my other event', function (data) {
-    console.log('socket heard my other event');
-    const session = sessions[data.sessionKey];
-    console.log('session', session);
-    console.log('heard the event', data);
-  });
+
   socket.on('doAction', function (data) {
-    console.log('socket heard doAction with data', data);
+    console.log('socket heard doAction');
     const session = sessions[data.sessionKey];
-    const gameState = reduce(data.gameState, data.type, data.data);
-    gameHistory.push(gameState);
-    console.log('new game state', gameState);
-    console.log('session', session);
-    console.log('heard the event', data);
+    gameState = reduce(data.gameState, data.actorUid, data.type, data.data); // update game state
+    gameHistory.push({ gameState: data.gameState, actorUid: data.actorUid, type: data.type, data: data.data, session });
   });
+
   socket.on('disconnect', function() {
     console.log('user disconnected');
     // todo: figure out how to handle disconnect

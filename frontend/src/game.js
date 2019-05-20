@@ -3,7 +3,7 @@ import './game.css';
 import _ from 'lodash';
 
 // TODO move to player.js
-function Player({playerState: { role, chosen, name }, onNominate, doAction}) {
+function Player({playerState: { role, chosen, name }, onNominate, doAction, actorUid}) {
   return (
     <div className="player">
       <span className="player--info">
@@ -13,14 +13,14 @@ function Player({playerState: { role, chosen, name }, onNominate, doAction}) {
       </span>
       <div className="player--actions">
         <div className="action--button">
-          <button onClick={()=>doAction({type: 'play_vote', data: { target: name } })}>click to nominate {name}</button>
+          <button onClick={()=>doAction({type: 'play_vote', actorUid, data: { target: name } })}>click to nominate {name}</button>
         </div>
       </div>
     </div>
   );
 }
 
-function Game({gameState: { uid, players }, doAction}) {
+function Game({gameState: { uid, players }, doAction, history}) {
   console.log(uid, players);
   const player = players[uid];
   const { role } = player;
@@ -47,12 +47,18 @@ function Game({gameState: { uid, players }, doAction}) {
 
         <div className="players--info">
           {_.map(players, player => (
-            <Player key={player.uid} playerState={player} doAction={doAction}/>
+            <Player key={player.uid} actorUid={uid} playerState={player} doAction={doAction}/>
           ))}
         </div>
 
         <div className="action--button">
-            <button onClick={()=>doAction({type: 'reveal_outcome', data: { target: null, outcome: 'liberals win'} })}> click to reveal outcome </button>
+            <button onClick={()=>doAction({type: 'reveal_outcome', actorUid: uid, data: { target: null, outcome: 'liberals win'} })}> click to reveal outcome </button>
+        </div>
+        <div className="action--button">
+            <button onClick={()=>history('view')}> click to reveal game history </button>
+        </div>
+        <div className="action--button">
+            <button onClick={()=>history('clear')}> click to clear game history </button>
         </div>
         <div className="action--info">
           <div className="action--pending">

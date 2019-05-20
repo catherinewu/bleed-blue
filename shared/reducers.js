@@ -30,7 +30,7 @@ const generateInitialState = () => {
   };
 };
 
-const validate = (gameState, type, actorUid, data) => {
+const validate = (gameState, actorUid, type, data) => {
   const { target, source, outcome } = data;
   const handler = validators[type];
   if (!handler) {
@@ -42,33 +42,36 @@ const validate = (gameState, type, actorUid, data) => {
 
 const validators = {
   play_vote(state, actorUid, { target }) {
-    return state.status === 'pending' && _.get(actorUid, 'players', actorUid, 'role') === 'Voter';
+    console.log('in validate play_vote');
+    return state.status === 'pending' && _.get(_.findLast(_.get(state, 'players'), (p) => p.uid === actorUid), 'role') === 'Voter'
+      && _.get(_.findLast(_.get(state, 'players'), (p) => p.name === target), 'role') === 'Candidate';
   },
 
   restart_game(state, actorUid) {
+    console.log('in validate restart_game');
     // XXX too permissive
     // TODO add "game leader" or something
     return true;
   },
 
   reveal_outcome(state, actorUid, { outcome }) {
+    console.log('in validate reveal_outcome');
     // Only the moderator (uid = -1) can reveal the outcome of the game
     return state.status === 'finalizing' && actorUid === -1;
   }
 };
 
 
-const reduce = (gameState, type, data) => {
-  console.log('in reduce with game state', gameState);
+const reduce = (gameState, actorUid, type, data) => {
+  console.log('in reduce with game state ', gameState, ' and target ', data.target);
   const { target, source, outcome } = data;
-  console.log('target is', target);
   const handler = reducers[type];
   return handler(gameState, { target, source, outcome });
 }
 
 const reducers = {
   play_vote(state, { target }) {
-    console.log('state is', state);
+    console.log('in play_vote');
     const players = _.map(state.players, (p) => {
       return {
         ...p,
@@ -76,17 +79,16 @@ const reducers = {
         chosen: p.name === target,
       }
     });
-    console.log('original state', state.players);
     const toReturn = {
       ...state,
       players,
       status: 'finalizing',
     };
-    console.log(`updated state`, JSON.stringify(players, null, 4));
     return toReturn;
   },
 
   restart_game(state, { target }) {
+    console.log('in restart_game');
     return generateInitialState();
   },
   // server events
