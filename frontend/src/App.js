@@ -3,13 +3,6 @@ import './App.css';
 import Game from './game';
 import { generateInitialState, reduce, validate } from '../src/shared/reducers'
 import io from 'socket.io-client';
-// const gameState = {
-//   day: 3,
-//   players: [1, 2],
-//   cardsPlayed: ['pass', 'pass'],
-//   player: 1,
-//   role: 'Hitler',
-// }
 
 const serverAddress = 'http://localhost:6060';
 
@@ -21,6 +14,7 @@ class App extends Component {
 
     this.state = {
       gameState: generateInitialState(),
+      gameId: null,
     };
   }
 
@@ -28,41 +22,27 @@ class App extends Component {
     this.socket = io(serverAddress);
     this.Game = new Game({ gameState: this.state.gameState });
 
-    // let server know about new game
-    this.socket.emit('newGame', { gameState: this.state.gameState, targetNumberPlayers: 3 });
-
-    this.socket.on('news', (data) => {
-      console.log(data);
-      this.socket.emit('my other event', { my: 'data', sessionKey: window.localStorage.getItem('sessionKey') });
+    this.socket.on('stateUpdate', (data) => {
+      console.log('received stateUpdate event, ', data);
+      this.gameState = data;
     });
 
-    this.socket.on('stateUpdate', (data) => {
-      console.log('received stateUpdate event');
+    this.socket.on('gameReady', (data) => {
+      console.log('received gameReady event, ', data);
+    });
+
+    this.socket.on('playerDidAction', (data) => {
+      console.log('received playerDidAction event, ', data);
     })
   }
 
   handleNameInput(e) {
-    this.setState({name: e.target.value});
+    this.setState({gameId: e.target.value});
   }
 
   handleJoin(e) {
-    fetch(serverAddress + '/create_user', {
-      body: JSON.stringify({
-        name: this.state.name
-      }),
-      method: 'post',
-      cache: 'no-cache',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(json => {
-      if(json.success) {
-        localStorage.sessionKey = json.sessionKey;
-        this.setState({loaded: true});
-      }
-    });
+    this.socket.emit('create_user_join_game', { gameId: this.state.gameId });
+    this.setState({loaded: true});
   }
 
   history = (type) => {
@@ -102,12 +82,16 @@ class App extends Component {
 
   render() {
     return ( this.state.loaded ?
-      <Game id={0} gameState={this.state.gameState} doAction={this.doAction} history={this.history}></Game>
+      <Game id={this.state.gameId} gameState={this.state.gameState} playerId={0} doAction={this.doAction} history={this.history}></Game>
       :
       <div className="join-container">
-        <input type="text" value={this.state.name} onChange={this.handleNameInput.bind(this)} className="join-input" placeholder="Enter a name to use ..."/>
-        <br/>
-        <button className="join-button" onClick={this.handleJoin.bind(this)}>Join</button>
+        <div>
+          <input type="text" value={this.state.gameId} onChange={this.handleNameInput.bind(this)} className="join-input" placeholder="Enter unique id for game!"/>
+        </div>
+        <div>
+          <button className="join-button" onClick={this.handleJoin.bind(this)}>Join/Create Game</button>
+          {/* <button className="join-button" onClick={this.handleNewGame.bind(this)}>New Game</button> */}
+        </div>
       </div>
     );
   }
