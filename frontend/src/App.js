@@ -37,6 +37,10 @@ class App extends Component {
     this.socket.on('playerDidAction', (data) => {
       alert('playerDidAction');
       console.log('received playerDidAction event, ', data);
+    });
+
+    this.socket.on('exception', (data) => {
+      alert('exception, ', data.errorMessage);
     })
   }
 
@@ -51,23 +55,15 @@ class App extends Component {
 
   history = (type) => {
     if (type === 'view') {
-      fetch(serverAddress + '/view_history', {
-        method: 'get',
-        cache: 'no-cache',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => console.log('view history response: ', response.body));
+      this.socket.emit('viewGameHistory', function ackFn(error, message) {
+        console.log('error, ', error);
+        console.log('game history, ', message);
+      });
     } else if (type === 'clear') {
-      fetch(serverAddress + '/clear_history', {
-        method: 'post',
-        cache: 'no-cache',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => console.log('view history response: ', response.body));
+      this.socket.emit('clearGameHistory', function ackFn(error, message) {
+        console.log('error, ', error);
+        console.log('game history (should be cleared), ', message);
+      });
     }
   }
 

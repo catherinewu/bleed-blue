@@ -24,7 +24,7 @@ class Game {
     this._gameId = gameId;
     this._targetNumberPlayers = targetNumberPlayers;
     this._gameState = generateInitialState();
-    this._gameHistory = [];
+    this._gameHistory = [this._gameState];
     this._players = [];
   }
   getGameId() {
@@ -46,6 +46,10 @@ class Game {
   }
   getGameHistory() {
     return this._gameHistory;
+  }
+  clearGameHistory() { // keep players but clear all moves
+    this._gameState = generateInitialState();
+    this._gameHistory = [this._gameState];
   }
   getPlayers() {
     return this._players;
@@ -102,12 +106,6 @@ setInterval(() => {
   io.sockets.emit('stateUpdate', gameState);
 }, 1000 / 1);
 
-app.get('/view_history', (req, res) => {
-  console.log('in view_history route');
-  console.log(gameHistory);
-  res.send({ history: gameHistory});
-})
-
 app.post('/clear_history', (req, res) => {
   sessions = {};
   gameHistory = [];
@@ -133,6 +131,7 @@ io.on('connection', function (socket) {
     const socketId = socket.id;
     console.log('in create_user_join_game route; user socket id is ', socketId, 'with game id ', gameId);
     if (!gameId) {
+      socket.emit('exception', {errorMessage: 'must enter gameId'});
       throw new Error('must enter gameId');
     }
     let currentGame = _.get(ALL_GAMES, gameId);
@@ -142,7 +141,6 @@ io.on('connection', function (socket) {
     }
     if (currentGame.targetNumberPlayers && currentGame.currentNumberPlayers > currentGame.targetNumberPlayers) {
       console.log('Sorry, target number of players reached');
-      // res.json({ success: false })
       socket.emit('exception', {errorMessage: 'Sorry, target number of players reached'});
     }
     currentGame.addPlayer(socketId);
@@ -155,19 +153,26 @@ io.on('connection', function (socket) {
     // const session = sessions[socket.id];
     const game = SOCKET_TO_GAME[socketId];
     const actorUid = game.getPlayerId(socketId);
-    console.log('game is', game);
     const gameState = reduce(game.getGameState(), actorUid, data.type, data.data); // update game state
-    console.log('new gameState is', gameState);
     game.updateGameState(gameState);
-    // gameHistory.push({ gameState: data.gameState, actorUid: data.actorUid, type: data.type, data: data.data, session });
 
     const shouldBroadcast = _.includes(['pick_chancellor', 'play_vote'], data.type);
     if (shouldBroadcast) {
-      console.log('trying to broadcast playerDidAction');
       game.emitEventToPlayers('playerDidAction', { gameState: game.getGameState(), actorUid, type: data.type, data: data.data });
     }
   });
 
+  socket.on('viewGameHistory', function(callback) {
+    // todo: sanitize game history
+    const game = SOCKET_TO_GAME[socket.id];
+    callback('no error', game.getGameHistory());
+  });
+
+  socket.on('clearGameHistory', function(callback) {
+    const game = SOCKET_TO_GAME[socket.id];
+    game.clearGameHistory();
+    callback('no error', game.getGameHistory());
+  })
   socket.on('disconnect', function() {
     console.log(`user with socket id ${socket.id} disconnected`);
   });
