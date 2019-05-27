@@ -71,13 +71,14 @@ class Game {
       this.emitEventToPlayers('notEnoughPlayers');
     }
   }
-  emitEventToPlayers(eventType) {
+  emitEventToPlayers(eventType, data) {
     // io.sockets.socket(savedSocketId).emit(...)
     console.log(`trying to emit ${eventType} to all players in game ${this._gameId}`);
     Promise.map(this._players, (p) => {
-      console.log(`trying to emit to player ${p}`);
+      const socket = p.getSocketId();
+      console.log(`trying to emit to player ${socket}`);
       // io.sockets.socket(p).emit(eventType);
-      io.to(p.getSocketId()).emit(eventType);
+      io.to(`${socket}`).emit(eventType, data);
     })
   }
 }
@@ -150,7 +151,7 @@ io.on('connection', function (socket) {
 
   socket.on('doAction', function (data) { // fix variable names lol
     const socketId = socket.id;
-    console.log('socket heard doAction from socketId, ', socket.id);
+    console.log('socket heard doAction ', data.type, ' from socketId, ', socket.id);
     // const session = sessions[socket.id];
     const game = SOCKET_TO_GAME[socketId];
     const actorUid = game.getPlayerId(socketId);
@@ -160,9 +161,10 @@ io.on('connection', function (socket) {
     game.updateGameState(gameState);
     // gameHistory.push({ gameState: data.gameState, actorUid: data.actorUid, type: data.type, data: data.data, session });
 
-    const shouldBroadcast = _.includes(['pick_chancellor', 'play_vote']);
+    const shouldBroadcast = _.includes(['pick_chancellor', 'play_vote'], data.type);
     if (shouldBroadcast) {
-      socket.emit('playerDidAction', { gameState: game.getGameState(), actorUid, type: data.type, data: data.data });
+      console.log('trying to broadcast playerDidAction');
+      game.emitEventToPlayers('playerDidAction', { gameState: game.getGameState(), actorUid, type: data.type, data: data.data });
     }
   });
 

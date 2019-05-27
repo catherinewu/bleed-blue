@@ -24,14 +24,18 @@ class App extends Component {
 
     this.socket.on('stateUpdate', (data) => {
       console.log('received stateUpdate event, ', data);
+      // alert('received stateUpdate event');
       this.gameState = data;
     });
 
     this.socket.on('gameReady', (data) => {
+      alert('gameReady');
       console.log('received gameReady event, ', data);
     });
 
+    // want to update the player's view of world when this happens
     this.socket.on('playerDidAction', (data) => {
+      alert('playerDidAction');
       console.log('received playerDidAction event, ', data);
     })
   }
