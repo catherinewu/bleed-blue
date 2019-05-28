@@ -45,6 +45,14 @@ function Game({id, gameState, playerId, doAction, history}) {
           Game status: { status }
         </div>
 
+        <div className="state--info">
+          Game id: { id }
+        </div>
+
+        <div className="state--info">
+          Number Players { gameState.players.length } of { gameState.targetNumberPlayers}
+        </div>
+
         <div className="players--info">
           {_.map(gameState.players, player => (
             <Player uid={playerId} playerState={player} doAction={doAction}/>
