@@ -89,9 +89,11 @@ class Game {
   }
 
   emitEventToPlayers(eventType, data, filter=null) {
+    console.log('emitEventToPlayers for type, ', eventType);
     Promise.map(this.getPlayers(), (p) => {
       const socket = p.socketId;
       if (filter) {
+        console.log('trying to emit ', eventType, ' to player id ', p.playerId);
         const cleanData = filter(data, p.playerId);
         io.to(`${socket}`).emit(eventType, cleanData);
       } else {

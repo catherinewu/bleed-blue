@@ -69,7 +69,7 @@ const reduce = (gameState, playerId, type, data) => {
 
 const reducers = {
   play_vote(state, { target }) {
-    console.log('in reduce: play_vote');
+    console.log('in reduce: play_vote with target, ', target);
     const players = _.map(state.players, (p) => {
       return {
         ...p,

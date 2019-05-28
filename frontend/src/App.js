@@ -26,7 +26,7 @@ class App extends Component {
     this.socket.on('stateUpdate', (data) => {
       console.log('received stateUpdate event, ', data);
       // alert('received stateUpdate event');
-      this.state.gameState = data;
+      // this.setState({ gameState: data })
     });
 
     this.socket.on('gameReady', (data) => {
@@ -86,9 +86,9 @@ class App extends Component {
       window.alert('your action is not valid :P');
       return;
     }
-    this.socket.emit('doAction', {gameState: this.state.gameState, playerId, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
+    this.socket.emit('doAction', {gameState: this.state.gameState, playerId, type, data });
     this.setState({
-      gameState: reduce(this.state.gameState, playerId, type, data),
+      gameState: reduce(this.state.gameState, playerId, type, data)
     })
   }
 
