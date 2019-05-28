@@ -72,8 +72,6 @@ class Game {
     const playerId = this.getCurrentNumberPlayers() + 1;
     console.log('playerId', playerId, 'target number of players', this._targetNumberPlayers);
     if (playerId > this._targetNumberPlayers) {
-      const error = 'Uh-oh! Too many players :( ';
-      console.log(error);
       return -100;
     }
     const newPlayer = { playerId, socketId, playerRole: 'not decided' };
@@ -129,7 +127,7 @@ io.on('connection', function (socket) {
     const gameId = data.gameId;
     const socketId = socket.id;
     if (!gameId) {
-      socket.emit('exception', {errorMessage: 'must enter gameId'});
+      socket.emit('exception', { errorMessage: 'must enter gameId' });
       throw new Error('must enter gameId');
     }
     let currentGame = _.get(ALL_GAMES, gameId);
@@ -147,7 +145,7 @@ io.on('connection', function (socket) {
     }
 
     SOCKET_TO_GAME[socketId] = currentGame;
-    callback('no error', { playerId, gameState: currentGame.getGameState(), gameId: currentGame.getGameId() });
+    callback(null, { playerId, gameState: currentGame.getGameState(), gameId: currentGame.getGameId() });
   });
 
   socket.on('doAction', function (data) {

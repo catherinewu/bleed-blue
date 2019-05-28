@@ -56,6 +56,7 @@ class App extends Component {
   handleJoin(e) {
     this.socket.emit('create_user_join_game', { gameId: this.state.gameId }, function ackFn(error, message) {
       if (error) {
+        console.log('handleJoin callback has error', error);
         alert('exception, ', error);
       }
       console.log('message in create_user_join_game is', message);
