@@ -26,7 +26,7 @@ class App extends Component {
     this.socket.on('stateUpdate', (data) => {
       console.log('received stateUpdate event, ', data);
       // alert('received stateUpdate event');
-      this.gameState = data;
+      this.state.gameState = data;
     });
 
     this.socket.on('gameReady', (data) => {
@@ -59,11 +59,7 @@ class App extends Component {
         console.log('handleJoin callback has error', error);
         alert('exception, ', error);
       }
-      console.log('message in create_user_join_game is', message);
       const { playerId, gameState, gameId } = message;
-
-      console.log('setting gameState, gameId, playerId, players');
-      console.log(gameState, gameId, playerId);
       this.setState({ gameState });
       this.setState({ gameId });
       this.setState({ playerId });

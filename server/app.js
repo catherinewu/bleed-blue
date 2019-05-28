@@ -88,10 +88,15 @@ class Game {
     return playerId;
   }
 
-  emitEventToPlayers(eventType, data) {
+  emitEventToPlayers(eventType, data, filter=null) {
     Promise.map(this.getPlayers(), (p) => {
       const socket = p.socketId;
-      io.to(`${socket}`).emit(eventType, data);
+      if (filter) {
+        const cleanData = filter(data, p.playerId);
+        io.to(`${socket}`).emit(eventType, cleanData);
+      } else {
+        io.to(`${socket}`).emit(eventType, data);
+      }
     });
   }
 }
@@ -103,21 +108,10 @@ function filterGameState(gameState, playerId) {
 
 // emit the gameState object to all sockets at a rate of 1 times per second.
 setInterval(() => {
-  let gameState = 'lalala';
-  // update all games
   _.values(ALL_GAMES, (g) => {
-    g.emitEventToPlayers('stateUpdate', gameState);
+    g.emitEventToPlayers('stateUpdate', g.getGameState(), filterGameState);
   });
-  // io.sockets.emit('stateUpdate', gameState);
 }, 1000 / 1);
-
-app.post('/clear_history', (req, res) => {
-  sessions = {};
-  gameHistory = [];
-  res.send({ success: true });
-  // emit some socket event
-  // let currentNumberPlayers = 0;
-})
 
 // When a connection was created.
 io.on('connection', function (socket) {
@@ -127,8 +121,9 @@ io.on('connection', function (socket) {
     const gameId = data.gameId;
     const socketId = socket.id;
     if (!gameId) {
-      socket.emit('exception', { errorMessage: 'must enter gameId' });
-      throw new Error('must enter gameId');
+      const error = 'Must enter game id';
+      socket.emit('exception', { errorMessage: error });
+      callback(error, {});
     }
     let currentGame = _.get(ALL_GAMES, gameId);
     if (!currentGame) { // create new game
@@ -139,7 +134,6 @@ io.on('connection', function (socket) {
 
     if (playerId === -100) {
       const error = 'Sorry, target number of players reached';
-      console.log(error);
       socket.emit('exception', { errorMessage: error });
       callback(error, {});
     }
