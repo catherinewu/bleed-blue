@@ -3,27 +3,27 @@ import './game.css';
 import _ from 'lodash';
 
 // TODO move to player.js
-function Player({playerState: { role, chosen, name }, onNominate, doAction, actorUid}) {
+function Player({ uid, playerState, doAction }) {
+  console.log('in player uid is ', uid);
   return (
     <div className="player">
       <span className="player--info">
-        <span className="player--name">{name}</span>
-        <span className="player--role">({role})</span>
-        <span className="player--chosen">{chosen ? ' has been chosen' : ' would like to be chosen'}</span>
+        {/* <span className="player--name">{name}</span> */}
+        <span className="player--role">({ playerState.playerRole })</span>
+        <span className="player--chosen">{ playerState.chosen ? ' has been chosen' : ' would like to be chosen'}</span>
       </span>
       <div className="player--actions">
         <div className="action--button">
-          <button onClick={()=>doAction({type: 'play_vote', actorUid, data: { target: name } })}>click to nominate {name}</button>
+          <button onClick={()=>doAction({type: 'play_vote', playerId: uid, data: { target: playerState.playerId } })}>click to nominate { playerState.playerId }</button>
         </div>
       </div>
     </div>
   );
 }
+function Game({id, gameState, playerId, doAction, history}) {
+  const player = _.findLast(gameState.players, (p) => p.playerId === playerId);
 
-function Game({gameState: { uid, players }, doAction, history}) {
-  console.log(uid, players);
-  const player = players[uid];
-  const { role } = player;
+  const role = player.playerRole;
   const status = 'Day 1';
   return (
     <div className="game--container">
@@ -46,13 +46,13 @@ function Game({gameState: { uid, players }, doAction, history}) {
         </div>
 
         <div className="players--info">
-          {_.map(players, player => (
-            <Player key={player.uid} actorUid={uid} playerState={player} doAction={doAction}/>
+          {_.map(gameState.players, player => (
+            <Player uid={playerId} playerState={player} doAction={doAction}/>
           ))}
         </div>
 
         <div className="action--button">
-            <button onClick={()=>doAction({type: 'reveal_outcome', actorUid: uid, data: { target: null, outcome: 'liberals win'} })}> click to reveal outcome </button>
+            <button onClick={()=>doAction({type: 'reveal_outcome', playerId, data: { target: null, outcome: 'liberals win'} })}> click to reveal outcome </button>
         </div>
         <div className="action--button">
             <button onClick={()=>history('view')}> click to reveal game history </button>

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import Game from './game';
-import { generateInitialState, reduce, validate } from '../src/shared/reducers'
+import { reduce, validate } from '../src/shared/reducers'
 import io from 'socket.io-client';
+const _ = require('lodash');
 
 const serverAddress = 'http://localhost:6060';
 
@@ -13,14 +14,14 @@ class App extends Component {
     this.Game = null;
 
     this.state = {
-      gameState: generateInitialState(),
+      gameState: null,
+      playerId: null,
       gameId: null,
     };
   }
 
   componentDidMount() {
     this.socket = io(serverAddress);
-    this.Game = new Game({ gameState: this.state.gameState });
 
     this.socket.on('stateUpdate', (data) => {
       console.log('received stateUpdate event, ', data);
@@ -29,8 +30,12 @@ class App extends Component {
     });
 
     this.socket.on('gameReady', (data) => {
-      alert('gameReady');
-      console.log('received gameReady event, ', data);
+      console.log('received gameReady event with data', data);
+      const gameState = data.gameState;
+      alert('gameReady with gameState ', gameState);
+      this.setState({ gameState });
+      const playerRole = _.get(_.findLast(gameState.players, (p) => p.playerId === this.playerId), 'playerRole');
+      this.setState({ playerRole })
     });
 
     // want to update the player's view of world when this happens
@@ -49,8 +54,20 @@ class App extends Component {
   }
 
   handleJoin(e) {
-    this.socket.emit('create_user_join_game', { gameId: this.state.gameId });
-    this.setState({loaded: true});
+    this.socket.emit('create_user_join_game', { gameId: this.state.gameId }, function ackFn(error, message) {
+      if (error) {
+        alert('exception, ', error);
+      }
+      console.log('message in create_user_join_game is', message);
+      const { playerId, gameState, gameId } = message;
+
+      console.log('setting gameState, gameId, playerId, players');
+      console.log(gameState, gameId, playerId);
+      this.setState({ gameState });
+      this.setState({ gameId });
+      this.setState({ playerId });
+      this.setState({ loaded: true });
+    }.bind(this));
   }
 
   history = (type) => {
@@ -67,30 +84,30 @@ class App extends Component {
     }
   }
 
-  doAction = ({actorUid, type, data}) => {
-    console.log('actorUid in doAction is', actorUid);
-    const valid = validate(this.state.gameState, actorUid, type, data);
+  doAction = ({playerId, type, data}) => {
+    console.log('playerId in doAction is', playerId);
+    const valid = validate(this.state.gameState, playerId, type, data);
     if (!valid) {
       window.alert('your action is not valid :P');
       return;
     }
-    this.socket.emit('doAction', {gameState: this.state.gameState, actorUid, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
+    this.socket.emit('doAction', {gameState: this.state.gameState, playerId, type, data, sessionKey: window.localStorage.getItem('sessionKey')});
     this.setState({
-      gameState: reduce(this.state.gameState, actorUid, type, data),
+      gameState: reduce(this.state.gameState, playerId, type, data),
     })
   }
 
   render() {
     return ( this.state.loaded ?
-      <Game id={this.state.gameId} gameState={this.state.gameState} playerId={0} doAction={this.doAction} history={this.history}></Game>
+      <Game id={this.state.gameId} gameState={this.state.gameState} playerId={this.state.playerId} doAction={this.doAction} history={this.history}></Game>
       :
       <div className="join-container">
         <div>
           <input type="text" value={this.state.gameId} onChange={this.handleNameInput.bind(this)} className="join-input" placeholder="Enter unique id for game!"/>
         </div>
         <div>
-          <button className="join-button" onClick={this.handleJoin.bind(this)}>Join/Create Game</button>
-          {/* <button className="join-button" onClick={this.handleNewGame.bind(this)}>New Game</button> */}
+          {/* <button className="join-button" onClick={()=>doAction({ type: 'join_game' })}>Join/Create Game</button> */}
+          <button className="join-button" onClick={this.handleJoin.bind(this)}>New Game</button>
         </div>
       </div>
     );
