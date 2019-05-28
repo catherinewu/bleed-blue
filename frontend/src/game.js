@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 // TODO move to player.js
 function Player({ uid, playerState, doAction }) {
-  console.log('in player uid is ', uid);
   return (
     <div className="player">
       <span className="player--info">

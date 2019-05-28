@@ -74,7 +74,7 @@ const reducers = {
       return {
         ...p,
         hasChosen: p.playerRole === 'Voter',
-        chosen: p.name === target,
+        chosen: p.playerId === target,
       }
     });
     return {
