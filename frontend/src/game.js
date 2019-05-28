@@ -23,7 +23,6 @@ function Game({id, gameState, playerId, doAction, history}) {
   const player = _.findLast(gameState.players, (p) => p.playerId === playerId);
 
   const role = player.playerRole;
-  const status = 'Day 1';
   return (
     <div className="game--container">
       <div className="header">
@@ -41,7 +40,7 @@ function Game({id, gameState, playerId, doAction, history}) {
         </div>
 
         <div className="state--info">
-          Game status: { status }
+          Game status: { gameState.status }
         </div>
 
         <div className="state--info">

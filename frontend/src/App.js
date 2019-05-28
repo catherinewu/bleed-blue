@@ -30,7 +30,6 @@ class App extends Component {
     });
 
     this.socket.on('gameReady', (data) => {
-      console.log('received gameReady event with data', data);
       const gameState = data.gameState;
       alert('gameReady with gameState ', gameState);
       this.setState({ gameState });
@@ -40,8 +39,7 @@ class App extends Component {
 
     // want to update the player's view of world when this happens
     this.socket.on('playerDidAction', (data) => {
-      alert('playerDidAction');
-      console.log('received playerDidAction event, ', data);
+      this.setState({ gameState: data.gameState });
     });
 
     this.socket.on('exception', (data) => {
