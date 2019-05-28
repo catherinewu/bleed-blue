@@ -39,6 +39,7 @@ class App extends Component {
 
     // want to update the player's view of world when this happens
     this.socket.on('playerDidAction', (data) => {
+      console.log('in playerDidAction; updating game state to ', data.gameState);
       this.setState({ gameState: data.gameState });
     });
 
@@ -101,8 +102,8 @@ class App extends Component {
           <input type="text" value={this.state.gameId} onChange={this.handleNameInput.bind(this)} className="join-input" placeholder="Enter unique id for game!"/>
         </div>
         <div>
-          {/* <button className="join-button" onClick={()=>doAction({ type: 'join_game' })}>Join/Create Game</button> */}
-          <button className="join-button" onClick={this.handleJoin.bind(this)}>New Game</button>
+          {/* add options here to stub out players / skip to section */}
+          <button className="join-button" onClick={this.handleJoin.bind(this)}>Join Game</button>
         </div>
       </div>
     );

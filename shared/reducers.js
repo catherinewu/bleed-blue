@@ -121,7 +121,19 @@ const reducers = {
       ...state,
       players,
     }
-  }
+  },
+
+  nominate_chancellor() {
+
+  },
+
+  pass_two_policies() {
+
+  },
+
+  play_policy() {
+
+  },
 };
 
 exports.reduce = reduce;

@@ -120,6 +120,7 @@ io.on('connection', function (socket) {
   console.log('a user connected:', socket.id);
 
   socket.on('create_user_join_game', function (data, callback) {
+    // handle when user logs in via user + pass
     const gameId = data.gameId;
     const socketId = socket.id;
     if (!gameId) {
